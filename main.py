@@ -1,6 +1,7 @@
 from flask import Flask, request
+import sqlite3
 
-from utils import generate_password, generate_name, count_astros 
+from utils import generate_password, generate_name, count_astros,commit_sql
 
 
 app = Flask(__name__)
@@ -47,6 +48,66 @@ def count():
     return count_astros()
 
 
+@app.route('/phones/create')
+def phones_create():
+    contact_name = request.args['contact-name']
+    phone_value = request.args['phone-value']
+
+    sql = f"""
+    INSERT INTO Phones (contactName, phoneValue)
+    VALUES ('{contact_name}', '{phone_value}');
+    """
+    
+    commit_sql(sql)
+
+    return 'phones_create'
+
+
+@app.route('/phones/read')
+def phones_read():
+    con = sqlite3.connect("example.db")
+    cur = con.cursor()
+
+    sql = """
+    SELECT * FROM Phones;
+    """
+
+    cur.execute(sql)
+    result = cur.fetchall()
+    con.close()
+    return str(result)
+
+@app.route('/phones/update')
+def phones_update():
+    contact_name = request.args['contact-name']
+    phone_value = request.args['phone-value']
+    phone_id = request.args['phone_id']
+
+
+    sql = f"""
+    UPDATE Phones 
+    SET  phoneValue = '{phone_value}',
+    contactName = '{contact_name}'
+    WHERE  phoneID = {phone_id};
+    """
+    
+    commit_sql(sql)
+
+    return 'phones_update'
+
+@app.route('/phones/delete')
+def phones_delete():
+    phone_id = request.args['phone_id']
+
+
+    sql = f"""
+    DELETE FROM Phones 
+    WHERE  phoneID = {phone_id};
+    """
+
+    commit_sql(sql)
+
+    return 'phones_delete'
 
 if __name__ == "__main__":
     app.run()

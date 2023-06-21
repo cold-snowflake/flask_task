@@ -2,6 +2,7 @@ from faker import Faker
 import string
 import random
 import requests
+import sqlite3
 
 def generate_password(length: int = 10)-> str:
     chars = string.ascii_letters + string.digits
@@ -33,3 +34,12 @@ def count_astros():
     data = r.json()
     number_astros = str(data["number"])
     return f'The number of cosmonauts at the moment is {number_astros} people!!!'
+
+def commit_sql(sql):
+
+    con = sqlite3.connect("example.db")
+    cur = con.cursor()
+
+    cur.execute(sql)
+    con.commit()
+    con.close()
